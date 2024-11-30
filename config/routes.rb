@@ -7,4 +7,5 @@ Rails.application.routes.draw do
 
   post "table/create", to: "tables#create"
   post "table/delete", to: "tables#delete"
+  post "table/show", to: "tables#show"
 end
