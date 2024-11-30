@@ -6,4 +6,5 @@ Rails.application.routes.draw do
   # root "posts#index"
 
   post "table/create", to: "tables#create"
+  post "table/delete", to: "tables#delete"
 end
