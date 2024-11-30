@@ -15,21 +15,21 @@ class Table
   end
 
   def create
-    apply Events::TableCreated.new(data: { table_id: table_id, name: name })
+    apply TableCreated.new(data: { table_id: table_id, name: name })
   end
 
   def delete
     # raise HasNotBeenSynced unless synced
-    apply Events::TableDeleted.new(data: { table_id: table_id })
+    apply TableDeleted.new(data: { table_id: table_id })
   end
 
-  on Events::TableCreated do |event|
+  on TableCreated do |event|
     @table_id = event.data.fetch(:table_id)
     @name = event.data.fetch(:name)
     @synced = false
   end
 
-  on Events::TableDeleted do |event|
+  on TableDeleted do |event|
     @table_id = event.data.fetch(:table_id)
     @synced = false
     @deleted = true
