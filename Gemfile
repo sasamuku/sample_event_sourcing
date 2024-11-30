@@ -47,3 +47,4 @@ group :development, :test do
 end
 
 
+gem "rails_event_store", "~> 2.15.0"
