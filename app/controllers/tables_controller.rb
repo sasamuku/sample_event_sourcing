@@ -1,6 +1,6 @@
 class TablesController < ApplicationController
   def create
-    id = CreateTableUsecase.new(table_name: params[:table_name]).execute
+    id = CreateTableUsecase.new(name: params[:name]).execute
 
     render json: { status: :ok, order: { id: id } }
   end

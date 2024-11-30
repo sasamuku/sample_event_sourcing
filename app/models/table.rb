@@ -3,19 +3,19 @@ class Table
   class HasNotBeenSynced < StandardError; end
 
   attr_reader :table_id
-  attr_reader :table_name
+  attr_reader :name
   attr_reader :synced
   attr_reader :deleted
 
-  def initialize(table_id: nil, table_name: nil)
+  def initialize(table_id: nil, name: nil)
     @synced = nil
     @deleted = false
     @table_id = table_id
-    @table_name = table_name
+    @name = name
   end
 
   def create
-    apply Events::TableCreated.new(data: { table_id: table_id, table_name: table_name })
+    apply Events::TableCreated.new(data: { table_id: table_id, name: name })
   end
 
   def delete
@@ -25,7 +25,7 @@ class Table
 
   on Events::TableCreated do |event|
     @table_id = event.data.fetch(:table_id)
-    @table_name = event.data.fetch(:table_name)
+    @name = event.data.fetch(:name)
     @synced = false
   end
 
