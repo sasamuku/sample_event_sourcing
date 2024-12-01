@@ -18,6 +18,14 @@ class Table
     apply TableCreated.new(data: { table_id: table_id, name: name })
   end
 
+  def confirm_created
+    apply TableCreationConfirmed.new(data: { table_id: table_id })
+  end
+
+  def reject_created
+    apply TableCreationRejected.new(data: { table_id: table_id })
+  end
+
   def delete
     # raise HasNotBeenSynced unless synced
     apply TableDeleted.new(data: { table_id: table_id })
@@ -27,6 +35,16 @@ class Table
     @table_id = event.data.fetch(:table_id)
     @name = event.data.fetch(:name)
     @synced = false
+  end
+
+  on TableCreationConfirmed do |event|
+    @table_id = event.data.fetch(:table_id)
+    @synced = true
+  end
+
+  on TableCreationRejected do |event|
+    @table_id = event.data.fetch(:table_id)
+    @deleted = true
   end
 
   on TableDeleted do |event|
