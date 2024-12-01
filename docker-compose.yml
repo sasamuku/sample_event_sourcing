@@ -26,18 +26,24 @@ services:
       - user_pgdata:/var/lib/postgresql/data
 
   solid-queue:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: queue
     stdin_open: true
     tty: true
     command: bundle exec rake solid_queue:start
     depends_on:
       - core-db
+      - user-db
     environment:
       - RAILS_ENV=development
-      - DB_HOST=core-db
+      - CORE_DB_HOST=core-db
+      - CORE_DB_PORT=5432
+      - USER_DB_HOST=user-db
+      - USER_DB_PORT=5432
     volumes:
-      - .:/usr/src/app
+      - .:/rails
       - gem_cache:/gems
 
   pgadmin:
