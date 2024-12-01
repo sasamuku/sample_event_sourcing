@@ -20,12 +20,17 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: postgres
   password: password
-  host: localhost
+  host: <%= ENV['DB_HOST'] || 'localhost' %>
   port: 5432
 
 development:
-  <<: *default
-  database: sample_event_sourcing_development
+  primary:
+    <<: *default
+    database: sample_event_sourcing_development
+  queue:
+    <<: *default
+    database: sample_event_sourcing_development_queue
+    migrations_paths: db/queue_migrate
 
   # The specified database role being used to connect to PostgreSQL.
   # To create additional roles in PostgreSQL see `$ createuser --help`.
@@ -58,8 +63,13 @@ development:
 # re-generated from your development database when you run "rake".
 # Do not set this db to the same as development or production.
 test:
-  <<: *default
-  database: sample_event_sourcing_test
+  primary:
+    <<: *default
+    database: sample_event_sourcing_test
+  queue:
+    <<: *default
+    database: sample_event_sourcing_test_queue
+    migrations_paths: db/queue_migrate
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is

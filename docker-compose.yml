@@ -1,9 +1,9 @@
 version: "3.9"
 
 services:
-  core_db:
+  core-db:
     image: postgres
-    container_name: core_postgres
+    container_name: core-db
     restart: always
     ports:
       - "5432:5432"
@@ -13,9 +13,9 @@ services:
     volumes:
       - core_pgdata:/var/lib/postgresql/data
 
-  user_db:
+  user-db:
     image: postgres
-    container_name: user_postgres
+    container_name: user-db
     restart: always
     ports:
       - "5433:5432"
@@ -24,6 +24,21 @@ services:
       POSTGRES_PASSWORD: password
     volumes:
       - user_pgdata:/var/lib/postgresql/data
+
+  solid-queue:
+    build: .
+    container_name: queue
+    stdin_open: true
+    tty: true
+    command: bundle exec rake solid_queue:start
+    depends_on:
+      - core-db
+    environment:
+      - RAILS_ENV=development
+      - DB_HOST=core-db
+    volumes:
+      - .:/usr/src/app
+      - gem_cache:/gems
 
   pgadmin:
     image: dpage/pgadmin4
@@ -34,6 +49,9 @@ services:
     environment:
       PGADMIN_DEFAULT_EMAIL: postgres@pg.com
       PGADMIN_DEFAULT_PASSWORD: password
+    depends_on:
+      - core-db
+      - user-db
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
@@ -41,3 +59,4 @@ volumes:
   core_pgdata:
   user_pgdata:
   pgadmin-data:
+  gem_cache:
