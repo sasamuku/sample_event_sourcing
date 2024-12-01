@@ -1,5 +1,6 @@
 class Table
   include AggregateRoot
+  class HasAlreadyBeenSynced < StandardError; end
   class HasNotBeenSynced < StandardError; end
 
   attr_reader :table_id
@@ -19,15 +20,17 @@ class Table
   end
 
   def confirm_created
+    raise HasAlreadyBeenSynced if synced
     apply TableCreationConfirmed.new(data: { table_id: table_id })
   end
 
   def reject_created
+    raise HasAlreadyBeenSynced if synced
     apply TableCreationRejected.new(data: { table_id: table_id })
   end
 
   def delete
-    # raise HasNotBeenSynced unless synced
+    raise HasNotBeenSynced unless synced
     apply TableDeleted.new(data: { table_id: table_id })
   end
 

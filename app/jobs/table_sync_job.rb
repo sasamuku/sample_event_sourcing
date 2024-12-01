@@ -7,8 +7,7 @@ class TableSyncJob < ApplicationJob
       # event = Rails.configuration.event_store.read.event(event_id)
 
       TableFeedbackJob.perform_later(event_id, "success")
-    rescue => e
-      puts "Error occurred: #{e.message}"
+    rescue
       TableFeedbackJob.perform_later(event_id, "fail")
     end
   end
