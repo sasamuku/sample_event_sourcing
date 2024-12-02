@@ -6,11 +6,12 @@ class Table
   attr_reader :table_id
   attr_reader :name
   attr_reader :synced
-  attr_reader :deleted
+  attr_reader :exists
+  attr_reader :error
 
   def initialize(table_id: nil, name: nil)
     @synced = nil
-    @deleted = false
+    @exists = false
     @table_id = table_id
     @name = name
   end
@@ -34,6 +35,16 @@ class Table
     apply TableDeleted.new(data: { table_id: table_id })
   end
 
+  def confirm_deleted
+    raise HasAlreadyBeenSynced if synced
+    apply TableDeletionConfirmed.new(data: { table_id: table_id })
+  end
+
+  def reject_deleted
+    raise HasAlreadyBeenSynced if synced
+    apply TableDeletionRejected.new(data: { table_id: table_id })
+  end
+
   on TableCreated do |event|
     @table_id = event.data.fetch(:table_id)
     @name = event.data.fetch(:name)
@@ -43,16 +54,31 @@ class Table
   on TableCreationConfirmed do |event|
     @table_id = event.data.fetch(:table_id)
     @synced = true
+    @exists = true
   end
 
   on TableCreationRejected do |event|
     @table_id = event.data.fetch(:table_id)
-    @deleted = true
+    @synced = true
+    @exists = false
+    @error = "Table creation rejected"
   end
 
   on TableDeleted do |event|
     @table_id = event.data.fetch(:table_id)
     @synced = false
-    @deleted = true
+  end
+
+  on TableDeletionConfirmed do |event|
+    @table_id = event.data.fetch(:table_id)
+    @synced = true
+    @exists = false
+  end
+
+  on TableDeletionRejected do |event|
+    @table_id = event.data.fetch(:table_id)
+    @synced = true
+    @exists = true
+    @error = "Table deletion rejected"
   end
 end

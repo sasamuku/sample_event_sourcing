@@ -15,6 +15,6 @@ class TablesController < ApplicationController
     id = params[:table_id]
     table = ShowTableUsecase.new(table_id: id).execute
 
-    render json: { table: { table_id: id, name: table.name, synced: table.synced, deleted: table.deleted } }
+    render json: { table: { table_id: id, name: table.name, synced: table.synced, exists: table.exists } }
   end
 end
