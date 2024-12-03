@@ -269,6 +269,8 @@ GEM
       rack
       ruby_event_store (= 2.15.0)
     securerandom (0.3.2)
+    sequel (5.86.0)
+      bigdecimal
     solid_cable (3.0.2)
       actioncable (>= 7.2)
       activejob (>= 7.2)
@@ -329,6 +331,7 @@ DEPENDENCIES
   rails (~> 8.0.0)
   rails_event_store (~> 2.15.0)
   rubocop-rails-omakase
+  sequel (~> 5.86)
   solid_cable
   solid_cache
   solid_queue
