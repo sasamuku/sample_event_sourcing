@@ -22,6 +22,15 @@ class TableSyncJob < ApplicationJob
             end
           end
         end
+      when "TableChanged"
+        Sequel.connect(UserDb.url) do |db|
+          db.alter_table(table_name) do
+            name = table.pending_column.keys.first.to_sym
+            column = table.pending_column.values.first
+            type = column&.type&.to_sym
+            type ? send(:add_column, name, type) : send(:drop_column, name)
+          end
+        end
       when "TableDeleted"
         Sequel.connect(UserDb.url) do |db|
           db.drop_table(table_name)

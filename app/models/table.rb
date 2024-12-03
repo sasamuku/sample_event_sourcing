@@ -9,6 +9,7 @@ class Table
   attr_reader :exists
   attr_reader :error
   attr_reader :columns
+  attr_reader :pending_column
 
   DEFAULT_COLUMNS = {
     id: Column.new(name: :id, type: "integer", nullable: false, primary_key: true),
@@ -17,12 +18,13 @@ class Table
     updated_at: Column.new(name: :updated_at, type: "timestamp")
   }
 
-  def initialize(table_id: nil, name: nil, columns: {})
+  def initialize(table_id: nil, name: nil)
     @synced = nil
     @exists = false
     @table_id = table_id
     @name = name
     @columns = DEFAULT_COLUMNS.dup
+    @pending_column = {}
   end
 
   def create
@@ -40,13 +42,23 @@ class Table
   end
 
   def column_changed(name:, type: nil, **options)
-    # raise HasNotBeenSynced unless synced
+    raise HasNotBeenSynced unless synced
     # if deleted column, set type to nil
     column = type ? Column.new(name: name, type: type, **options) : nil
     apply TableChanged.new(data: {
       table_id: table_id,
       columns: { name => column&.to_h }
     })
+  end
+
+  def confirm_column_changed
+    raise HasAlreadyBeenSynced if synced
+    apply TableChangeConfirmed.new(data: { table_id: table_id })
+  end
+
+  def reject_column_changed
+    raise HasAlreadyBeenSynced if synced
+    apply TableChangeRejected.new(data: { table_id: table_id })
   end
 
   def delete
@@ -91,12 +103,22 @@ class Table
     @synced = false
     event.data.fetch(:columns).each do |name, column_data|
       name = name.to_sym
-      if column_data.nil?
-        @columns.delete(name)
-      else
-        @columns[name] = Column.new(**column_data)
-      end
+      @pending_column[name] = column_data ? Column.new(**column_data) : nil
     end
+  end
+
+  on TableChangeConfirmed do |event|
+    @table_id = event.data.fetch(:table_id)
+    @synced = true
+    @columns.merge!(pending_column)
+    @pending_column = {}
+  end
+
+  on TableChangeRejected do |event|
+    @table_id = event.data.fetch(:table_id)
+    @synced = true
+    @columns.delete(pending_column.keys.first.to_sym)
+    @pending_column = {}
   end
 
   on TableDeleted do |event|

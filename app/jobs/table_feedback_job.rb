@@ -18,6 +18,17 @@ class TableFeedbackJob < ApplicationJob
           table.reject_created
         end
       end
+    when "TableChanged"
+      case status
+      when "success"
+        repository.with_aggregate(Table.new, stream_name) do |table|
+          table.confirm_column_changed
+        end
+      when "fail"
+        repository.with_aggregate(Table.new, stream_name) do |table|
+          table.reject_column_changed
+        end
+      end
     when "TableDeleted"
       case status
       when "success"
