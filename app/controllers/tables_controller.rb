@@ -14,7 +14,10 @@ class TablesController < ApplicationController
   def column
     # if intended to delete column, do not set type
     # ex. {"name": "column_name"}
-    ChangeColumnUsecase.new(table_id: params[:table_id], column: params[:column].permit!).execute
+    ChangeColumnUsecase.new(
+      table_id: params[:table_id],
+      column: params[:column].permit(:name, :type)
+    ).execute
 
     render json: { status: :ok }
   end
