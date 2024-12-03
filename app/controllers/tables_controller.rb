@@ -11,6 +11,12 @@ class TablesController < ApplicationController
     render json: { status: :ok }
   end
 
+  def column
+    ChangeColumnUsecase.new(table_id: params[:table_id], column: params[:column].permit!).execute
+
+    render json: { status: :ok }
+  end
+
   def show
     id = params[:table_id]
     table = ShowTableUsecase.new(table_id: id).execute

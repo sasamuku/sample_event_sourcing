@@ -39,6 +39,16 @@ class Table
     apply TableCreationRejected.new(data: { table_id: table_id })
   end
 
+  def column_changed(name:, type: nil, **options)
+    # raise HasNotBeenSynced unless synced
+    # if deleted column, set type to nil
+    column = type ? Column.new(name: name, type: type, **options) : nil
+    apply TableChanged.new(data: {
+      table_id: table_id,
+      columns: { name => column&.to_h }
+    })
+  end
+
   def delete
     raise HasNotBeenSynced unless synced
     apply TableDeleted.new(data: { table_id: table_id })
@@ -74,6 +84,19 @@ class Table
     @synced = true
     @exists = false
     @error = "Table creation rejected"
+  end
+
+  on TableChanged do |event|
+    @table_id = event.data.fetch(:table_id)
+    @synced = false
+    event.data.fetch(:columns).each do |name, column_data|
+      name = name.to_sym
+      if column_data.nil?
+        @columns.delete(name)
+      else
+        @columns[name] = Column.new(**column_data)
+      end
+    end
   end
 
   on TableDeleted do |event|
