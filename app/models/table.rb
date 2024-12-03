@@ -8,16 +8,25 @@ class Table
   attr_reader :synced
   attr_reader :exists
   attr_reader :error
+  attr_reader :columns
 
-  def initialize(table_id: nil, name: nil)
+  DEFAULT_COLUMNS = {
+    id: Column.new(name: :id, type: "integer", nullable: false, primary_key: true),
+    name: Column.new(name: :name, type: "text"),
+    created_at: Column.new(name: :created_at, type: "timestamp"),
+    updated_at: Column.new(name: :updated_at, type: "timestamp")
+  }
+
+  def initialize(table_id: nil, name: nil, columns: {})
     @synced = nil
     @exists = false
     @table_id = table_id
     @name = name
+    @columns = DEFAULT_COLUMNS.dup
   end
 
   def create
-    apply TableCreated.new(data: { table_id: table_id, name: name })
+    apply TableCreated.new(data: { table_id: table_id, name: name, columns: columns.transform_values(&:to_h) })
   end
 
   def confirm_created
@@ -48,6 +57,9 @@ class Table
   on TableCreated do |event|
     @table_id = event.data.fetch(:table_id)
     @name = event.data.fetch(:name)
+    @columns = event.data.fetch(:columns).transform_values do |column|
+      Column.new(**column)
+    end
     @synced = false
   end
 

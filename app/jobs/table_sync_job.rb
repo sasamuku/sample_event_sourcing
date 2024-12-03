@@ -15,10 +15,11 @@ class TableSyncJob < ApplicationJob
       when "TableCreated"
         Sequel.connect(UserDb.url) do |db|
           db.create_table(table_name) do
-            primary_key :id
-            String :name
-            DateTime :created_at
-            DateTime :updated_at
+            table.columns.values.each do |column|
+              name = column.name.to_sym
+              type = column.type.to_sym
+              column.primary_key ? send(:primary_key, name) : send(:column, name, type)
+            end
           end
         end
       when "TableDeleted"
