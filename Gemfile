@@ -49,4 +49,4 @@ end
 
 gem "rails_event_store", "~> 2.15.0"
 
-gem "sequel", "~> 5.86"
+gem "sequel", "~> 5.87"
