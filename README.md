@@ -88,12 +88,44 @@ This project demonstrates an implementation of Event Sourcing and Saga Pattern i
 
 ## Usage Example
 
-Create a new table via API:
+Create a new table:
 
 ```bash
 curl -X POST http://localhost:3000/table/create \
      -H "Content-Type: application/json" \
      -d '{"name": "my_new_table_123"}'
+```
+
+Delete a table:
+
+```bash
+curl -X POST http://localhost:3000/table/delete \
+     -H "Content-Type: application/json" \
+     -d '{"table_id": "2d7ea983-7844-4a1a-8b36-1dbc629d16e4"}'
+```
+
+Show table details:
+
+```bash
+curl -X POST http://localhost:3000/table/show \
+     -H "Content-Type: application/json" \
+     -d '{"table_id": "2d7ea983-7844-4a1a-8b36-1dbc629d16e4"}'
+```
+
+Add a column:
+
+```bash
+curl -X POST http://localhost:3000/table/column \
+     -H "Content-Type: application/json" \
+     -d '{"table_id": "2d7ea983-7844-4a1a-8b36-1dbc629d16e4", "column": {"name": "age", "type": "integer"}}'
+```
+
+Remove a column (by not specifying type):
+
+```bash
+curl -X POST http://localhost:3000/table/column \
+     -H "Content-Type: application/json" \
+     -d '{"table_id": "2d7ea983-7844-4a1a-8b36-1dbc629d16e4", "column": {"name": "age"}}'
 ```
 
 ## Architecture
