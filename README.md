@@ -132,7 +132,7 @@ curl -X POST http://localhost:3000/table/column \
 
 The project implements a multi-database architecture with:
 - Core DB for metadata
-- User DB for dynamic table creation
+- BYODB for dynamic table creation
 - Event-driven synchronization between databases
 
 ## Testing

@@ -7,7 +7,7 @@ class ChangeColumnUsecase
   def execute
     stream_name = "Table#{table_id}"
     repository = AggregateRoot::Repository.new
-    repository.with_aggregate(Table.new(table_id: table_id), stream_name) do |table|
+    repository.with_aggregate(Table.new, stream_name) do |table|
       table.column_changed(name: column[:name], type: column[:type])
     end
   end

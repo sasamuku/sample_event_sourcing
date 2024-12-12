@@ -13,7 +13,7 @@ class TableSyncJob < ApplicationJob
 
       case event.event_type
       when "TableCreated"
-        Sequel.connect(UserDb.url) do |db|
+        Sequel.connect(Byodb.url) do |db|
           db.create_table(table_name) do
             table.columns.values.each do |column|
               name = column.name.to_sym
@@ -23,7 +23,7 @@ class TableSyncJob < ApplicationJob
           end
         end
       when "TableChanged"
-        Sequel.connect(UserDb.url) do |db|
+        Sequel.connect(Byodb.url) do |db|
           db.alter_table(table_name) do
             name = table.pending_column.keys.first.to_sym
             column = table.pending_column.values.first
@@ -32,7 +32,7 @@ class TableSyncJob < ApplicationJob
           end
         end
       when "TableDeleted"
-        Sequel.connect(UserDb.url) do |db|
+        Sequel.connect(Byodb.url) do |db|
           db.drop_table(table_name)
         end
       end

@@ -13,9 +13,9 @@ services:
     volumes:
       - core_pgdata:/var/lib/postgresql/data
 
-  user-db:
+  byodb:
     image: postgres
-    container_name: user-db
+    container_name: byodb
     restart: always
     ports:
       - "5433:5432"
@@ -23,7 +23,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
     volumes:
-      - user_pgdata:/var/lib/postgresql/data
+      - byodb_pgdata:/var/lib/postgresql/data
 
   solid-queue:
     build:
@@ -35,13 +35,13 @@ services:
     command: bundle exec rake solid_queue:start
     depends_on:
       - core-db
-      - user-db
+      - byodb
     environment:
       - RAILS_ENV=development
       - CORE_DB_HOST=core-db
       - CORE_DB_PORT=5432
-      - USER_DB_HOST=user-db
-      - USER_DB_PORT=5432
+      - BYODB_HOST=byodb
+      - BYODB_PORT=5432
     volumes:
       - .:/rails
       - gem_cache:/gems
@@ -57,12 +57,12 @@ services:
       PGADMIN_DEFAULT_PASSWORD: password
     depends_on:
       - core-db
-      - user-db
+      - byodb
     volumes:
       - pgadmin-data:/var/lib/pgadmin
 
 volumes:
   core_pgdata:
-  user_pgdata:
+  byodb_pgdata:
   pgadmin-data:
   gem_cache:
